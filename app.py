@@ -4,7 +4,7 @@ import pickle
 
 app = Flask(__name__)
 
-def get_cleanded_data(form_data):
+def get_cleaned_data(form_data):
     gestation = float(form_data.get('gestation'))
     parity = float(form_data.get('parity'))
     age = float(form_data.get('age'))
@@ -31,26 +31,26 @@ def home():
 @app.route("/predict", methods=['POST'])
 def get_predictions():
     # get data from user
-    baby_data_form = request.form   # ✅ correct (no parentheses)
-    baby_data_cleaned = get_cleanded_data(baby_data_form)
+    baby_data_form = request.form
+    baby_data_cleaned = get_cleaned_data(baby_data_form)
 
     # convert into data frame
     baby_df = pd.DataFrame(baby_data_cleaned)
 
-    # ✅ ensure DataFrame is not empty
+    # ensure DataFrame is not empty
     if baby_df.empty:
         return render_template("index.html", prediction="Error: No input received")
 
-    # load machine learning trained model
+    # load trained model
     with open("models/models.pkl", "rb") as obj:
         model = pickle.load(obj)
 
-    # make predictions on user data
+    # make predictions
     prediction = model.predict(baby_df)
     prediction = round(float(prediction[0]), 2)
 
-    # return response
-    return render_template("index.html", prediction=prediction)
+    # return prediction result to HTML
+    return render_template('index.html', prediction=prediction)
 
 
 if __name__ == '__main__':
